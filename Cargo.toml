@@ -1,0 +1,13 @@
+[package]
+name = "f1-rs"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/yvessavoy/f1-rs"
+authors = ["Yves"]
+description = "Get historical and live Formula 1 (F1) data"
+license-file = "LICENSE"
+keywords = ["F1", "Formula1", "Racing", "Motorsport"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
