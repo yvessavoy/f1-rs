@@ -1,8 +1,12 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
+#![allow(dead_code, unused_imports)]
+mod historical;
+
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum F1Error {
+    #[error("API JSON deserialization problem")]
+    JsonDeserialization,
+    #[error("API not reachable")]
+    ApiNotReachable,
 }
