@@ -1,5 +1,5 @@
 #![allow(dead_code, unused_imports)]
-mod historical;
+pub mod historical;
 
 use thiserror::Error;
 
