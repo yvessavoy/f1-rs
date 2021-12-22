@@ -1,13 +1,10 @@
+use crate::ergast;
 use crate::F1Error;
 use serde::Deserialize;
 
-const BASE_URL: &str = "https://ergast.com/api/f1";
-
 pub fn get_season(year: i32) -> Result<Vec<Weekend>, F1Error> {
-    let url = format!("{}/{}.json", BASE_URL, year);
-    let r = reqwest::blocking::get(url).map_err(|_| F1Error::ApiNotReachable)?;
-    let v: serde_json::Value = r.json().map_err(|_| F1Error::JsonDeserialization)?;
-    let weekends = v["MRData"]["RaceTable"]["Races"]
+    let v = ergast::get(year.to_string())?;
+    let weekends = v["RaceTable"]["Races"]
         .as_array()
         .unwrap()
         .iter()
@@ -24,21 +21,20 @@ pub fn get_season(year: i32) -> Result<Vec<Weekend>, F1Error> {
 }
 
 pub struct Weekend {
-    year: i32,
-    round: i32,
-    name: String,
+    pub year: i32,
+    pub round: i32,
+    pub name: String,
 }
 
 impl Weekend {
     pub fn new(year: i32, round: i32) -> Result<Self, F1Error> {
-        let url = format!("{}/{}/{}.json", BASE_URL, year, round);
-        let r = reqwest::blocking::get(url).map_err(|_| F1Error::ApiNotReachable)?;
-        let v: serde_json::Value = r.json().map_err(|_| F1Error::JsonDeserialization)?;
+        let url = format!("{}/{}", year, round);
+        let v = ergast::get(url)?;
 
         Ok(Self {
             year,
             round,
-            name: v["MRData"]["RaceTable"]["Races"][0]["raceName"]
+            name: v["RaceTable"]["Races"][0]["raceName"]
                 .as_str()
                 .unwrap_or_default()
                 .parse()
@@ -47,26 +43,23 @@ impl Weekend {
     }
 
     pub fn race_results(&self) -> Result<Vec<RaceResult>, F1Error> {
-        let url = format!("{}/{}/{}/results.json", BASE_URL, self.year, self.round);
-        let r = reqwest::blocking::get(url).map_err(|_| F1Error::ApiNotReachable)?;
-        let v: serde_json::Value = r.json().map_err(|_| F1Error::JsonDeserialization)?;
+        let url = format!("{}/{}/results", self.year, self.round);
+        let v = ergast::get(url)?;
 
         let ret: Vec<RaceResult> =
-            serde_json::from_value(v["MRData"]["RaceTable"]["Races"][0]["Results"].clone())
+            serde_json::from_value(v["RaceTable"]["Races"][0]["Results"].clone())
                 .map_err(|_| F1Error::JsonDeserialization)?;
 
         Ok(ret)
     }
 
     pub fn qualifying_results(&self) -> Result<Vec<QualiResult>, F1Error> {
-        let url = format!("{}/{}/{}/qualifying.json", BASE_URL, self.year, self.round);
-        let r = reqwest::blocking::get(url).map_err(|_| F1Error::ApiNotReachable)?;
-        let v: serde_json::Value = r.json().map_err(|_| F1Error::JsonDeserialization)?;
+        let url = format!("{}/{}/qualifying", self.year, self.round);
+        let v = ergast::get(url)?;
 
-        let ret: Vec<QualiResult> = serde_json::from_value(
-            v["MRData"]["RaceTable"]["Races"][0]["QualifyingResults"].clone(),
-        )
-        .map_err(|_| F1Error::JsonDeserialization)?;
+        let ret: Vec<QualiResult> =
+            serde_json::from_value(v["RaceTable"]["Races"][0]["QualifyingResults"].clone())
+                .map_err(|_| F1Error::JsonDeserialization)?;
 
         Ok(ret)
     }
