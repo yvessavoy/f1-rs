@@ -92,14 +92,19 @@ impl From<ErgastDriver> for Driver {
 impl From<RaceResult> for crate::Standing {
     fn from(r: RaceResult) -> Self {
         let splits = r.fastest_lap.time.time.split(':').collect::<Vec<&str>>();
-        let minutes: u32 = splits.first().unwrap_or(&"").parse().unwrap_or_default();
+        let mut minutes: u32 = splits.first().unwrap_or(&"0").parse().unwrap_or_default();
         let splits = splits
             .last()
-            .unwrap_or(&"")
+            .unwrap_or(&"0")
             .split('.')
             .collect::<Vec<&str>>();
-        let seconds: u32 = splits.first().unwrap_or(&"").parse().unwrap_or_default();
-        let millis: u32 = splits.last().unwrap_or(&"").parse().unwrap_or_default();
+        let mut seconds: u32 = splits.first().unwrap_or(&"0").parse().unwrap_or_default();
+        let millis: u32 = splits.last().unwrap_or(&"0").parse().unwrap_or_default();
+
+        if seconds > 59 {
+            minutes += seconds / 60;
+            seconds = seconds % 60;
+        }
 
         let parsed_time = NaiveTime::from_hms_milli(0, minutes, seconds, millis);
 
@@ -133,14 +138,14 @@ impl From<QualiResult> for crate::Standing {
         };
 
         let splits = q_time.split(':').collect::<Vec<&str>>();
-        let minutes: u32 = splits.first().unwrap_or(&"").parse().unwrap_or_default();
+        let minutes: u32 = splits.first().unwrap_or(&"0").parse().unwrap_or_default();
         let splits = splits
             .last()
-            .unwrap_or(&"")
+            .unwrap_or(&"0")
             .split('.')
             .collect::<Vec<&str>>();
-        let seconds: u32 = splits.first().unwrap_or(&"").parse().unwrap_or_default();
-        let millis: u32 = splits.last().unwrap_or(&"").parse().unwrap_or_default();
+        let seconds: u32 = splits.first().unwrap_or(&"0").parse().unwrap_or_default();
+        let millis: u32 = splits.last().unwrap_or(&"0").parse().unwrap_or_default();
 
         let parsed_time = NaiveTime::from_hms_milli(0, minutes, seconds, millis);
 
@@ -163,14 +168,19 @@ impl From<Vec<QualiResult>> for crate::Session {
     }
 }
 
-/*impl From<ErgastWeekend> for crate::Weekend {
+impl From<ErgastWeekend> for crate::Weekend {
     fn from(w: ErgastWeekend) -> Self {
+        let sessions = vec![
+            w.qualifying_results().unwrap_or_default().into(),
+            w.race_results().unwrap_or_default().into(),
+        ];
+
         Self {
             name: w.name,
-            sessions: vec![],
+            sessions,
         }
     }
-}*/
+}
 
 #[derive(Deserialize, Clone)]
 struct QualiResult {

@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_imports)]
 mod ergast;
-pub mod historical;
+mod historical;
+mod season;
 
 use chrono::prelude::*;
 use std::collections::HashMap;
@@ -59,11 +60,6 @@ pub struct Session {
 pub struct Weekend {
     name: String,
     sessions: Vec<Session>,
-}
-
-pub struct Season {
-    year: i32,
-    weekends: Vec<Weekend>,
 }
 
 pub fn get_available_seasons() -> Vec<i32> {
