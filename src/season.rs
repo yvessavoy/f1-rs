@@ -28,6 +28,13 @@ mod tests {
         let season = Season::new(2021).unwrap();
         let bahrain = season.weekends.first().unwrap();
 
+        let circuit = &bahrain.circuit;
+        assert_eq!(circuit.name, "Bahrain International Circuit");
+        assert_eq!(circuit.locality, "Sakhir");
+        assert_eq!(circuit.country, "Bahrain");
+        assert_eq!(circuit.latitude, 26.0325);
+        assert_eq!(circuit.longitude, 50.5106);
+
         let quali = bahrain.sessions.first().unwrap();
 
         assert_eq!(quali.standings[0].driver.screen_name, "VER");
