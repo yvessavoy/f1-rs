@@ -1,9 +1,12 @@
 #![allow(dead_code, unused_imports)]
 mod ergast;
 mod historical;
+mod livetiming;
 mod season;
+mod weekend;
 
 pub use season::Season;
+pub use weekend::Weekend;
 
 use chrono::prelude::*;
 use std::collections::HashMap;
@@ -94,13 +97,6 @@ pub struct Circuit {
     pub longitude: f32,
     pub locality: String,
     pub country: String,
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct Weekend {
-    pub name: String,
-    pub sessions: Vec<Session>,
-    pub circuit: Circuit,
 }
 
 pub fn get_available_seasons() -> Vec<i32> {
